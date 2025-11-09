@@ -7,6 +7,13 @@ const { RoomRegistry } = require("./rooms");
 
 const PORT = process.env.PORT || 3000;
 const CLIENT_DIR = path.resolve(__dirname, "..", "client");
+const SOCKET_CLIENT_DIR = path.resolve(
+  __dirname,
+  "..",
+  "node_modules",
+  "socket.io-client",
+  "dist"
+);
 const GLOBAL_ROOM = "global";
 const DEFAULT_CANVAS_BACKGROUND = "#ffffff";
 
@@ -17,6 +24,7 @@ const io = new Server(server, {
 });
 
 app.use(express.static(CLIENT_DIR));
+app.use("/vendor", express.static(SOCKET_CLIENT_DIR));
 
 const drawingState = new DrawingState();
 const rooms = new RoomRegistry();
@@ -254,7 +262,19 @@ function normalizeBackgroundColor(value) {
   return sanitized.slice(0, 64);
 }
 
-server.listen(PORT, () => {
-  // eslint-disable-next-line no-console
-  console.log(`Collaborative canvas server running at http://localhost:${PORT}`);
-});
+function start(listenPort = PORT) {
+  server.listen(listenPort, () => {
+    // eslint-disable-next-line no-console
+    console.log(`Collaborative canvas server running at http://localhost:${listenPort}`);
+  });
+}
+
+if (require.main === module) {
+  start();
+}
+
+module.exports = {
+  app,
+  server,
+  start,
+};

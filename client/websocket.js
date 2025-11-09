@@ -1,3 +1,5 @@
+import { io } from "/vendor/socket.io.esm.min.js";
+
 let socket;
 let handlers = {
   onDrawSegment: null,
@@ -17,11 +19,6 @@ let pendingNameUpdate = null;
 
 export function initWebsocket(customHandlers = {}, roomId = null) {
   handlers = { ...handlers, ...customHandlers };
-
-  if (typeof io === "undefined") {
-    console.error("Socket.io client library not found.");
-    return null;
-  }
 
   const opts = { transports: ["websocket"] };
   if (roomId) {
