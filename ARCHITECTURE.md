@@ -9,7 +9,7 @@ The application is now hosted as two independent services:
 
 The browser client renders onto an HTML5 canvas and streams drawing events to the backend. Clients are authoritative over in-progress strokes, while the server owns the final operation history and cursor presence for every connected user.
 
-### Data Flow Diagram
+## Data Flow Diagram
 
 ```
 ┌────────────┐        pointer events        ┌────────────┐

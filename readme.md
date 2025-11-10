@@ -1,86 +1,39 @@
-# Collaborative Canvas – Split Deployment Setup
+# Collaborative Canvas
 
-This repository now holds two independent deployable packages so you can host the frontend on Vercel and the realtime backend on Render. Each folder is ready to be pushed to its own GitHub repository.
+A lightweight collaborative whiteboard built with a static HTML/CSS/JS frontend and a Node.js + Socket.IO backend. The project is split into two deployable packages so the frontend can live on a static host (e.g. Vercel) while the backend runs on Render or any Node-friendly provider.
 
-## Repository layout
+## Setup Instructions
 
-```
-.
-├── frontend/                # Static client for Vercel (plain HTML/CSS/JS)
-│   ├── index.html
-│   ├── canvas.js
-│   ├── main.js
-│   ├── websocket.js
-│   ├── style.css
-│   └── app-config.js        # Runtime configuration (edit per environment)
-├── server/                  # Node.js + Socket.IO backend for Render
-│   ├── server.js
-│   ├── drawing-state.js
-│   ├── rooms.js
-│   ├── package.json
-│   └── README.md
-├── ARCHITECTURE.md          # Design notes (updated to reference split hosting)
-└── README.md (this file)
-```
-
-## How to create the two GitHub repositories
-
-1. **Frontend repo**
-	- Create a new repository (e.g. `collaborative-canvas-frontend`).
-	- Copy the contents of `frontend/` into that repository.
-	- Update `frontend/app-config.js` so `backendUrl` points at your Render URL. Commit the change.
-
-2. **Server repo**
-	- Create a second repository (e.g. `collaborative-canvas-server`).
-	- Copy the contents of `server/` into that repository.
-	- Add an `.env` file (based on `.env.example`) with `ALLOWED_ORIGINS=<your Vercel URL>`.
-
-Both directories include their own `package.json` files, so the repos stay completely isolated.
-
-## Local development workflow
+The backend provides the Socket.IO hub; the frontend is served as static files.
 
 ```bash
-# Terminal 1 – backend
+# Backend (Socket.IO server)
 cd server
 npm install
-npm run dev
+npm start
 
-# Terminal 2 – frontend
+# Frontend (static assets)
 cd frontend
 npx serve .
 # or python3 -m http.server 4173
 ```
 
-Update `frontend/app-config.js` to use `http://localhost:3000` (or whatever port the backend is listening on).
+Before running the frontend, edit `frontend/app-config.js` so `backendUrl` points to your backend URL (for local development use `http://localhost:3000`). Once both services are running, load the address printed by your static server.
 
-## Deploying to Vercel (frontend)
+## Testing With Multiple Users
 
-1. Connect the frontend GitHub repository to Vercel.
-2. Use the following project settings:
-   - **Framework preset**: `Other`
-   - **Build command**: leave empty (static export)
-   - **Output directory**: `.`
-3. Ensure `app-config.js` contains the production Render URL before pushing.
+1. Start the backend and frontend as described above.
+2. Open the frontend URL in your main browser window.
+3. Open the same URL in an incognito/private window or a different browser profile.
+4. Draw in one window and confirm strokes, cursors, undo/redo, and name updates appear in the other instances in real time.
 
-## Deploying to Render (backend)
+## Known Limitations / Bugs
 
-1. Create a new **Web Service**.
-2. Build command: `npm install`
-3. Start command: `npm start`
-4. Add environment variables:
-	- `ALLOWED_ORIGINS=https://<your-vercel-domain>` (comma-separated if multiple)
-5. Enable WebSockets in the Render service settings.
+- No authentication or access control—anyone with the link can join.
+- Collaboration state is in-memory; restarting the backend clears undo/redo history.
+- Frontend needs a manual refresh if the backend URL changes (no dynamic discovery).
+- Large rooms may strain the single Node process because there is no horizontal scaling yet.
 
-Render automatically supplies the `PORT` variable; the server will use it when present.
+## Time Spent
 
-## Feature summary
-
-- Real-time brush & eraser with stroke smoothing
-- Undo/redo and shared canvas resets
-- Cursor presence with live collaborator list
-- Export to PNG, JPEG, or SVG
-- Customisable display names with server-side validation
-
-Refer to `ARCHITECTURE.md` for a deep dive into the event flow and module responsibilities.
-
-Happy drawing!
+Approximately 2 days across restructuring, environment setup, documentation, and testing.
